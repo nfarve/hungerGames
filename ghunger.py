@@ -57,14 +57,18 @@ class NfgpPlayer:
         for player in player_reputations:
             if player >= self.currRoundAvgRep: # If the player has a higher-than average reputation to hunt, opt to cooperate
                 huntDecisions.append('h')
-                huntConsequences += 6
             else: # If not, slack
                 huntDecisions.append('s')
-                huntConsequences += 2
                 
-        if huntConsequences >= self.currRoundFood: # Our current choices could result in death
-            # Change decisions (slack more) if at all possible
-            1 == 0
+        # Analyze worst-case food cost of current hunt decisions
+        # If it is greater than the current food supply, then slack as much as possible to avoid worst-case death
+        while self.findWorstCaseHunt(huntDecisions) >= self.currRoundFood:
+            try:
+                i = huntDecisions.index('h')
+                huntDecisions[i] = 's'
+            except ValueError: # All "Hunt" choices are gone
+                break
+            
         return huntDecisions
 
     def hunt_outcomes(self, food_earnings):
@@ -125,3 +129,12 @@ class NfgpPlayer:
 
 
         pass # do nothing
+    
+    def findWorstCaseHunt(self, hunt_decisions)
+        huntConsequences = 0
+        for choice in hunt_decisions:
+            if choice == 'h': # If the player has a higher-than average reputation to hunt, opt to cooperate
+                huntConsequences += 3
+            else: # choice == 's'
+                huntConsequences += 2
+        return huntConsequences
